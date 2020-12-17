@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+option java_package = "me.alidg.stubs.grpc";
+option go_package = "g/grpc";
+
+service EchoService {
+  rpc echo (Message) returns (Message) {}
+}
+
+message Message {
+  string content = 1;
+}
