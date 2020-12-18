@@ -20,17 +20,22 @@ public final class Benchy {
             .build();
         var client = EchoServiceGrpc.newFutureStub(channel);
 
-        var latch = new CountDownLatch(requests);
 
-        var request = Message.newBuilder().setContent("Hello").build();
-        var startedAt = System.nanoTime();
-        for (int i = 0; i < requests; i++) {
-            client.echo(request).addListener(latch::countDown, executorService);
+        for (int j = 0; j < 10; j++) {
+            var latch = new CountDownLatch(requests);
+            var request = Message.newBuilder().setContent("Hello").build();
+            var startedAt = System.nanoTime();
+            for (int i = 0; i < requests; i++) {
+                client.echo(request).addListener(latch::countDown, executorService);
+            }
+
+            latch.await();
+            var duration = System.nanoTime() - startedAt;
+            System.out.println("Took: " + duration / 1_000_000.0 + " millis");
+            System.out.println("RPS: " + requests * 1_000_000_000.0 / duration);
+            System.out.println("------------------");
+
+            Thread.sleep(1000);
         }
-
-        latch.await();
-        var duration = System.nanoTime() - startedAt;
-        System.out.println("Took: " + duration / 1_000_000.0 + " millis");
-        System.out.println("RPS: " + requests * 1_000_000_000.0 / duration);
     }
 }
